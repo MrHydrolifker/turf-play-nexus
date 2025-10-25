@@ -40,6 +40,7 @@ export default function VendorDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [vendorId, setVendorId] = useState<string | null>(null);
+  const [vendorApproved, setVendorApproved] = useState(false);
 
   useEffect(() => {
     if (userRole !== 'vendor') {
@@ -59,12 +60,13 @@ export default function VendorDashboard() {
       // Get vendor ID
       const { data: vendorData, error: vendorError } = await supabase
         .from('vendors')
-        .select('id')
+        .select('id, approved')
         .eq('user_id', user?.id)
         .single();
 
       if (vendorError) throw vendorError;
       setVendorId(vendorData.id);
+      setVendorApproved(vendorData.approved);
 
       // Fetch turfs
       const { data: turfsData, error: turfsError } = await supabase
@@ -136,11 +138,21 @@ export default function VendorDashboard() {
             </Button>
             <h1 className="text-3xl font-bold">Vendor Dashboard</h1>
           </div>
-          <Button onClick={() => toast.info('Add turf feature coming soon!')}>
+          <Button onClick={() => navigate('/vendor/add-turf')} disabled={!vendorApproved}>
             <Plus className="h-4 w-4 mr-2" />
             Add Turf
           </Button>
         </div>
+
+        {!vendorApproved && (
+          <Card className="mb-6 bg-accent/10 border-accent">
+            <CardContent className="pt-6">
+              <p className="text-center text-lg font-semibold text-accent">
+                ⏳ Your vendor account is pending admin approval. You'll be able to add turfs once approved.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

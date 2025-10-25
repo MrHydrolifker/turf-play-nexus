@@ -138,6 +138,23 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleApproveVendor = async (vendorId: string) => {
+    try {
+      const { error } = await supabase
+        .from('vendors')
+        .update({ approved: true })
+        .eq('id', vendorId);
+
+      if (error) throw error;
+
+      toast.success('Vendor approved successfully');
+      fetchDashboardData();
+    } catch (error: any) {
+      toast.error('Failed to approve vendor');
+      console.error(error);
+    }
+  };
+
   const handleRemoveVendor = async (vendorId: string, userId: string) => {
     if (!confirm('Are you sure you want to remove this vendor? This will also delete all their turfs.')) return;
 
@@ -253,17 +270,28 @@ export default function AdminDashboard() {
                     <div>
                       <h3 className="font-semibold">{vendor.business_name}</h3>
                       <Badge variant={vendor.approved ? 'default' : 'secondary'}>
-                        {vendor.approved ? 'Approved' : 'Pending'}
+                        {vendor.approved ? 'Approved' : 'Pending Approval'}
                       </Badge>
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleRemoveVendor(vendor.id, vendor.user_id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Remove
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {!vendor.approved && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleApproveVendor(vendor.id)}
+                        >
+                          Approve
+                        </Button>
+                      )}
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemoveVendor(vendor.id, vendor.user_id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Remove
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

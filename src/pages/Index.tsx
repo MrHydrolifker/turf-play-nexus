@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import TurfCard from '@/components/TurfCard';
+import Landing from './Landing';
 import { Loader2, Search, LogOut, LayoutDashboard } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -33,15 +34,25 @@ export default function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
+    if (authLoading) return;
+
+    if (!user) {
+      // Show landing page for unauthenticated users
       return;
     }
 
-    if (user) {
-      fetchTurfs();
+    // Redirect based on role
+    if (userRole === 'admin') {
+      navigate('/admin/dashboard');
+      return;
+    } else if (userRole === 'vendor') {
+      navigate('/vendor/dashboard');
+      return;
     }
-  }, [user, authLoading, navigate]);
+
+    // Players stay on home page and see turfs
+    fetchTurfs();
+  }, [user, userRole, authLoading, navigate]);
 
   const fetchTurfs = async () => {
     try {
@@ -87,6 +98,11 @@ export default function Index() {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // Show landing page for unauthenticated users
+  if (!user) {
+    return <Landing />;
   }
 
   return (
