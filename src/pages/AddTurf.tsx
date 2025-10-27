@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,8 +12,15 @@ import { Loader2, ArrowLeft, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AddTurf() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userRole && userRole !== 'vendor') {
+      toast.error('Access denied. Only vendors can add turfs.');
+      navigate('/');
+    }
+  }, [userRole, navigate]);
   const [loading, setLoading] = useState(false);
   const [facilities, setFacilities] = useState<string[]>([]);
   const [facilityInput, setFacilityInput] = useState('');
