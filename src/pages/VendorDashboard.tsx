@@ -187,12 +187,35 @@ export default function VendorDashboard() {
 
         {/* Turfs */}
         <Card className="mb-8">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>My Turfs</CardTitle>
+            <Button 
+              onClick={() => navigate('/vendor/add-turf')} 
+              disabled={!vendorApproved}
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Turf
+            </Button>
           </CardHeader>
           <CardContent>
             {turfs.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">No turfs added yet</p>
+              <div className="text-center py-12">
+                <Store className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">No Turfs Yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  Start by adding your first turf to begin accepting bookings
+                </p>
+                <Button 
+                  onClick={() => navigate('/vendor/add-turf')} 
+                  disabled={!vendorApproved}
+                  size="lg"
+                  className="gap-2"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Your First Turf
+                </Button>
+              </div>
             ) : (
               <div className="space-y-4">
                 {turfs.map((turf) => (
