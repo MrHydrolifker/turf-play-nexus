@@ -36,24 +36,30 @@ export default function VendorAuth() {
       });
 
       if (error) throw error;
+      if (!data.user) throw new Error('User creation failed');
 
       // Add vendor role
-      await supabase.from('user_roles').insert({
-        user_id: data.user!.id,
+      const { error: roleError } = await supabase.from('user_roles').insert({
+        user_id: data.user.id,
         role: 'vendor',
       });
 
+      if (roleError) throw roleError;
+
       // Create vendor profile
-      await supabase.from('vendors').insert({
-        user_id: data.user!.id,
+      const { error: vendorError } = await supabase.from('vendors').insert({
+        user_id: data.user.id,
         business_name: businessName,
         business_address: businessAddress,
         approved: false,
       });
 
-      toast.success('Vendor account created! Awaiting approval.');
-      setTimeout(() => navigate('/vendor/dashboard'), 1000);
+      if (vendorError) throw vendorError;
+
+      toast.success('Vendor account created! Awaiting admin approval.');
+      navigate('/vendor/dashboard');
     } catch (error: any) {
+      console.error('Vendor signup error:', error);
       toast.error(error.message || 'Failed to sign up');
     } finally {
       setLoading(false);
@@ -77,12 +83,14 @@ export default function VendorAuth() {
       if (error) throw error;
 
       // Verify vendor role
-      const { data: roleData } = await supabase
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', data.user.id)
         .eq('role', 'vendor')
-        .single();
+        .maybeSingle();
+
+      if (roleError) throw roleError;
 
       if (!roleData) {
         await supabase.auth.signOut();
@@ -92,6 +100,7 @@ export default function VendorAuth() {
       toast.success('Welcome back!');
       navigate('/vendor/dashboard');
     } catch (error: any) {
+      console.error('Vendor signin error:', error);
       toast.error(error.message || 'Failed to sign in');
     } finally {
       setLoading(false);
