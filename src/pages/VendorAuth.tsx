@@ -38,13 +38,14 @@ export default function VendorAuth() {
       if (error) throw error;
       if (!data.user) throw new Error('User creation failed');
 
-      // Add vendor role
+      // Add vendor role (ignore if player role already exists from trigger)
       const { error: roleError } = await supabase.from('user_roles').insert({
         user_id: data.user.id,
         role: 'vendor',
       });
 
-      if (roleError) throw roleError;
+      // Ignore duplicate key error (role might already exist)
+      if (roleError && !roleError.message.includes('duplicate')) throw roleError;
 
       // Create vendor profile
       const { error: vendorError } = await supabase.from('vendors').insert({
