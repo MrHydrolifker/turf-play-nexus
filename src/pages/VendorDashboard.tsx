@@ -43,13 +43,20 @@ export default function VendorDashboard() {
   const [vendorApproved, setVendorApproved] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return; // wait until auth loads
-    if (userRole !== 'vendor') {
+    if (authLoading) return; // wait until auth is fully resolved
+
+    if (!user) {
       navigate('/auth/vendor');
       return;
     }
-    
-    if (user) {
+
+    // Only redirect non-vendors after role is known
+    if (userRole && userRole !== 'vendor') {
+      navigate('/');
+      return;
+    }
+
+    if (userRole === 'vendor') {
       fetchVendorData();
     }
   }, [user, userRole, authLoading, navigate]);
