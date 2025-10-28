@@ -72,7 +72,7 @@ export default function AddTurf() {
           price_per_hour: pricePerHour,
           facilities,
           images: imageUrl ? [imageUrl] : [],
-          active: true,
+          active: false, // Pending admin approval
         })
         .select()
         .single();
@@ -96,7 +96,7 @@ export default function AddTurf() {
 
       if (slotsError) throw slotsError;
 
-      toast.success('Turf added successfully!');
+      toast.success('Turf added successfully! Waiting for admin approval.');
       navigate('/vendor/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Failed to add turf');

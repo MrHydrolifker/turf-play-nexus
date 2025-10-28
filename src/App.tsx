@@ -12,6 +12,7 @@ import TurfDetails from "./pages/TurfDetails";
 import VendorDashboard from "./pages/VendorDashboard";
 import AddTurf from "./pages/AddTurf";
 import AdminDashboard from "./pages/AdminDashboard";
+import MyBookings from "./pages/MyBookings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/auth/vendor" element={<VendorAuth />} />
           <Route path="/auth/admin" element={<AdminAuth />} />
           <Route path="/turf/:id" element={<TurfDetails />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/vendor/dashboard" element={<VendorDashboard />} />
           <Route path="/vendor/add-turf" element={<AddTurf />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

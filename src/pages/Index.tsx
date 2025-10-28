@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import TurfCard from '@/components/TurfCard';
 import Landing from './Landing';
-import { Loader2, Search, LogOut, LayoutDashboard } from 'lucide-react';
+import { Loader2, Search, LogOut, LayoutDashboard, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Turf {
@@ -116,6 +116,12 @@ export default function Index() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            {userRole === 'player' && (
+              <Button variant="outline" onClick={() => navigate('/my-bookings')}>
+                <Calendar className="h-4 w-4 mr-2" />
+                My Bookings
+              </Button>
+            )}
             {(userRole === 'admin' || userRole === 'vendor') && (
               <Button variant="outline" onClick={handleDashboardClick}>
                 <LayoutDashboard className="h-4 w-4 mr-2" />

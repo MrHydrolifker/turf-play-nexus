@@ -119,6 +119,23 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleApproveTurf = async (turfId: string) => {
+    try {
+      const { error } = await supabase
+        .from('turfs')
+        .update({ active: true })
+        .eq('id', turfId);
+
+      if (error) throw error;
+
+      toast.success('Turf approved successfully');
+      fetchDashboardData();
+    } catch (error: any) {
+      toast.error('Failed to approve turf');
+      console.error(error);
+    }
+  };
+
   const handleDeleteTurf = async (turfId: string) => {
     if (!confirm('Are you sure you want to delete this turf?')) return;
 
@@ -322,8 +339,17 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={turf.active ? 'default' : 'secondary'}>
-                        {turf.active ? 'Active' : 'Inactive'}
+                        {turf.active ? 'Active' : 'Pending Approval'}
                       </Badge>
+                      {!turf.active && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleApproveTurf(turf.id)}
+                        >
+                          Approve
+                        </Button>
+                      )}
                       <Button
                         variant="destructive"
                         size="sm"
