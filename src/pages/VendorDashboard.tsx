@@ -138,21 +138,11 @@ export default function VendorDashboard() {
             </Button>
             <h1 className="text-3xl font-bold">Vendor Dashboard</h1>
           </div>
-          <Button onClick={() => navigate('/vendor/add-turf')} disabled={!vendorApproved}>
+          <Button onClick={() => navigate('/vendor/add-turf')}>
             <Plus className="h-4 w-4 mr-2" />
             Add Turf
           </Button>
         </div>
-
-        {!vendorApproved && (
-          <Card className="mb-6 bg-accent/10 border-accent">
-            <CardContent className="pt-6">
-              <p className="text-center text-lg font-semibold text-accent">
-                ⏳ Your vendor account is pending admin approval. You'll be able to add turfs once approved.
-              </p>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -191,7 +181,6 @@ export default function VendorDashboard() {
             <CardTitle>My Turfs</CardTitle>
             <Button 
               onClick={() => navigate('/vendor/add-turf')} 
-              disabled={!vendorApproved}
               size="sm"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -208,7 +197,6 @@ export default function VendorDashboard() {
                 </p>
                 <Button 
                   onClick={() => navigate('/vendor/add-turf')} 
-                  disabled={!vendorApproved}
                   size="lg"
                   className="gap-2"
                 >
