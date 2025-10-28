@@ -34,7 +34,7 @@ interface Booking {
 }
 
 export default function VendorDashboard() {
-  const { user, userRole } = useAuth();
+  const { user, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [turfs, setTurfs] = useState<Turf[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -43,15 +43,16 @@ export default function VendorDashboard() {
   const [vendorApproved, setVendorApproved] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return; // wait until auth loads
     if (userRole !== 'vendor') {
-      navigate('/');
+      navigate('/auth/vendor');
       return;
     }
     
     if (user) {
       fetchVendorData();
     }
-  }, [user, userRole, navigate]);
+  }, [user, userRole, authLoading, navigate]);
 
   const fetchVendorData = async () => {
     try {
