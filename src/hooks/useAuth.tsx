@@ -20,14 +20,15 @@ export function useAuth() {
         // Fetch user role if user exists
         if (session?.user) {
           setTimeout(async () => {
-            const { data: roleData } = await supabase
+            const { data: rolesData } = await supabase
               .from('user_roles')
               .select('role')
-              .eq('user_id', session.user.id)
-              .single();
+              .eq('user_id', session.user.id);
             
-            if (roleData) {
-              setUserRole(roleData.role);
+            if (rolesData && rolesData.length > 0) {
+              const roles = rolesData.map((r: any) => r.role);
+              const resolvedRole = roles.includes('admin') ? 'admin' : roles.includes('vendor') ? 'vendor' : 'player';
+              setUserRole(resolvedRole);
             }
             setLoading(false);
           }, 0);
@@ -48,10 +49,11 @@ export function useAuth() {
           .from('user_roles')
           .select('role')
           .eq('user_id', session.user.id)
-          .single()
-          .then(({ data: roleData }) => {
-            if (roleData) {
-              setUserRole(roleData.role);
+          .then(({ data: rolesData }) => {
+            if (rolesData && rolesData.length > 0) {
+              const roles = rolesData.map((r: any) => r.role);
+              const resolvedRole = roles.includes('admin') ? 'admin' : roles.includes('vendor') ? 'vendor' : 'player';
+              setUserRole(resolvedRole);
             }
             setLoading(false);
           });
