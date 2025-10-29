@@ -68,12 +68,14 @@ export default function AdminAuth() {
       if (error) throw error;
 
       // Verify admin role
-      const { data: roleData } = await supabase
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', data.user.id)
         .eq('role', 'admin')
-        .single();
+        .maybeSingle();
+
+      if (roleError) throw roleError;
 
       if (!roleData) {
         await supabase.auth.signOut();

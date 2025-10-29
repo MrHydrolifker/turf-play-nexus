@@ -34,7 +34,7 @@ interface Vendor {
 }
 
 export default function AdminDashboard() {
-  const { userRole } = useAuth();
+  const { user, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
@@ -48,13 +48,23 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (userRole !== 'admin') {
+    if (authLoading) return; // wait for auth resolution
+
+    if (!user) {
+      navigate('/auth/admin');
+      return;
+    }
+
+    // Only redirect non-admins after role is known
+    if (userRole && userRole !== 'admin') {
       navigate('/');
       return;
     }
     
-    fetchDashboardData();
-  }, [userRole, navigate]);
+    if (userRole === 'admin') {
+      fetchDashboardData();
+    }
+  }, [user, userRole, authLoading, navigate]);
 
   const fetchDashboardData = async () => {
     try {
