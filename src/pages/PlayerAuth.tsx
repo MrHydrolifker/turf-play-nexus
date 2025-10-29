@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,9 @@ import { Loader2, Gamepad2 } from 'lucide-react';
 export default function PlayerAuth() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const returnTo = params.get('returnTo') || '/';
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,14 +33,14 @@ export default function PlayerAuth() {
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}${returnTo}`,
         },
       });
 
       if (error) throw error;
 
       toast.success('Account created! Redirecting...');
-      setTimeout(() => navigate('/'), 1000);
+      setTimeout(() => navigate(returnTo), 1000);
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign up');
     } finally {
@@ -62,7 +65,7 @@ export default function PlayerAuth() {
       if (error) throw error;
 
       toast.success('Welcome back!');
-      navigate('/');
+      navigate(returnTo);
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign in');
     } finally {

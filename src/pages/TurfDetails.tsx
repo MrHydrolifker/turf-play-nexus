@@ -99,7 +99,12 @@ export default function TurfDetails() {
   };
 
   const handleBooking = async () => {
-    if (!selectedSlot || !turf || !user) return;
+    if (!selectedSlot || !turf) return;
+    if (!user) {
+      navigate(`/auth/player?returnTo=/turf/${id}`);
+      toast.info('Please sign in to book');
+      return;
+    }
 
     setBooking(true);
     try {
@@ -121,7 +126,7 @@ export default function TurfDetails() {
       if (error) throw error;
 
       toast.success('Booking confirmed! Payment pending.');
-      navigate('/');
+      navigate('/my-bookings');
     } catch (error: any) {
       toast.error(error.message || 'Booking failed');
     } finally {
