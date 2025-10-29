@@ -5,9 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import TurfCard from '@/components/TurfCard';
 import Landing from './Landing';
-import { Loader2, Search, LogOut, LayoutDashboard, Calendar } from 'lucide-react';
+import { Loader2, Search, LogOut, LayoutDashboard, Calendar, Clock, IndianRupee } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Turf {
@@ -24,9 +26,24 @@ interface Turf {
   total_reviews: number;
 }
 
+interface Booking {
+  id: string;
+  booking_date: string;
+  start_time: string;
+  end_time: string;
+  total_amount: number;
+  payment_status: string;
+  booking_status: string;
+  turf: {
+    name: string;
+    game_type: string;
+  };
+}
+
 export default function Index() {
   const { user, userRole, signOut, loading: authLoading } = useAuth();
   const [turfs, setTurfs] = useState<Turf[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [cityFilter, setCityFilter] = useState('all');
@@ -52,6 +69,9 @@ export default function Index() {
 
     // Players stay on home page and see turfs
     fetchTurfs();
+    if (userRole === 'player') {
+      fetchRecentBookings();
+    }
   }, [user, userRole, authLoading, navigate]);
 
   const fetchTurfs = async () => {
@@ -70,6 +90,25 @@ export default function Index() {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRecentBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          turf:turfs(name, game_type)
+        `)
+        .eq('user_id', user?.id)
+        .order('booking_date', { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      setBookings(data || []);
+    } catch (error: any) {
+      console.error('Failed to load bookings', error);
     }
   };
 
@@ -186,6 +225,66 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* Recent Bookings for Players */}
+      {userRole === 'player' && bookings.length > 0 && (
+        <section className="py-8 px-4 bg-muted/30">
+          <div className="container mx-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold">My Recent Bookings</h3>
+              <Button variant="outline" onClick={() => navigate('/my-bookings')}>
+                View All
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {bookings.map((booking) => (
+                <Card key={booking.id}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{booking.turf.name}</CardTitle>
+                    <Badge variant="secondary" className="w-fit">{booking.turf.game_type}</Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>
+                        {new Date(booking.booking_date).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span>{booking.start_time.slice(0, 5)} - {booking.end_time.slice(0, 5)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <IndianRupee className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-semibold">₹{booking.total_amount}</span>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge variant={booking.booking_status === 'confirmed' ? 'default' : 'secondary'}>
+                        {booking.booking_status}
+                      </Badge>
+                      <Badge 
+                        variant={
+                          booking.payment_status === 'paid' 
+                            ? 'default' 
+                            : booking.payment_status === 'pending' 
+                            ? 'outline' 
+                            : 'destructive'
+                        }
+                      >
+                        {booking.payment_status}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Turfs Grid */}
       <section className="py-12 px-4">
