@@ -5,16 +5,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import TurfCard from '@/components/TurfCard';
 import { Loader2, ArrowLeft, Plus, Store, Calendar, IndianRupee } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Turf {
   id: string;
   name: string;
+  description?: string;
+  address: string;
+  city: string;
   game_type: string;
   price_per_hour: number;
+  facilities?: string[];
+  images?: string[];
   active: boolean;
   rating: number;
+  total_reviews?: number;
 }
 
 interface Booking {
@@ -65,16 +72,44 @@ export default function VendorDashboard() {
     try {
       setLoading(true);
       
-      // Get vendor ID
-      const { data: vendorData, error: vendorError } = await supabase
+      // Get or create vendor profile
+      const { data: vendorData } = await supabase
         .from('vendors')
         .select('id, approved')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
-      if (vendorError) throw vendorError;
-      setVendorId(vendorData.id);
-      setVendorApproved(vendorData.approved);
+      let currentVendorId: string | null = null;
+      let currentApproved = false;
+
+      if (!vendorData) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user!.id)
+          .maybeSingle();
+
+        const business_name = profile?.full_name || 'New Vendor';
+        const { data: createdVendor, error: createError } = await supabase
+          .from('vendors')
+          .insert({
+            user_id: user!.id,
+            business_name,
+            approved: false,
+          })
+          .select('id, approved')
+          .single();
+
+        if (createError) throw createError;
+        currentVendorId = createdVendor.id;
+        currentApproved = createdVendor.approved;
+      } else {
+        currentVendorId = vendorData.id;
+        currentApproved = vendorData.approved;
+      }
+
+      setVendorId(currentVendorId);
+      setVendorApproved(currentApproved);
 
       // Fetch turfs
       const { data: turfsData, error: turfsError } = await supabase
@@ -256,7 +291,7 @@ export default function VendorDashboard() {
                     <div>
                       <h3 className="font-semibold">{booking.turf?.name || 'Unknown'}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {booking.profiles?.full_name || 'Unknown User'} • {booking.booking_date} • {booking.start_time.slice(0, 5)}
+                         {booking.profiles?.full_name || 'Unknown User'} • {booking.booking_date} • {booking.start_time?.slice(0, 5)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
