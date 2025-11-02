@@ -37,6 +37,8 @@ interface Booking {
   };
   profiles: {
     full_name: string;
+    email: string;
+    phone: string;
   };
 }
 
@@ -135,18 +137,18 @@ export default function VendorDashboard() {
 
         if (bookingsError) throw bookingsError;
         
-        // Fetch user profiles separately
-        const userIds = bookingsData?.map(b => b.user_id) || [];
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .in('id', userIds);
-        
-        const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
-        const enrichedBookings = bookingsData?.map(b => ({
-          ...b,
-          profiles: profilesMap.get(b.user_id) || { full_name: 'Unknown' }
-        })) || [];
+      // Fetch user profiles separately
+      const userIds = bookingsData?.map(b => b.user_id) || [];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, phone')
+        .in('id', userIds);
+      
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+      const enrichedBookings = bookingsData?.map(b => ({
+        ...b,
+        profiles: profilesMap.get(b.user_id) || { full_name: 'Unknown', email: '', phone: '' }
+      })) || [];
         
         setBookings(enrichedBookings as any);
       }
@@ -288,11 +290,29 @@ export default function VendorDashboard() {
                     key={booking.id}
                     className="flex items-center justify-between p-4 border rounded-lg"
                   >
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-semibold">{booking.turf?.name || 'Unknown'}</h3>
-                      <p className="text-sm text-muted-foreground">
-                         {booking.profiles?.full_name || 'Unknown User'} • {booking.booking_date} • {booking.start_time?.slice(0, 5)}
-                      </p>
+                      <div className="space-y-1 mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Customer:</strong> {booking.profiles?.full_name || 'Unknown User'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Email:</strong> {booking.profiles?.email || 'Not provided'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Phone:</strong> {booking.profiles?.phone || 'Not provided'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Date:</strong> {new Date(booking.booking_date).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Time Slot:</strong> {booking.start_time?.slice(0, 5)} - {booking.end_time?.slice(0, 5)}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={booking.payment_status === 'paid' ? 'default' : 'secondary'}>

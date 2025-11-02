@@ -5,6 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Loader2, MapPin, Star, IndianRupee, ArrowLeft, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -106,10 +108,27 @@ export default function TurfDetails() {
       return;
     }
 
+    // Get phone number from form
+    const phoneInput = document.getElementById('phone') as HTMLInputElement;
+    const phone = phoneInput?.value?.trim();
+
+    if (!phone || phone.length < 10) {
+      toast.error('Please enter a valid phone number (minimum 10 digits)');
+      return;
+    }
+
     setBooking(true);
     try {
       const slot = timeSlots.find((s) => s.id === selectedSlot);
       if (!slot) throw new Error('Invalid slot');
+
+      // Update profile with phone number
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ phone })
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
 
       const { error } = await supabase.from('bookings').insert({
         turf_id: turf.id,
@@ -226,6 +245,18 @@ export default function TurfDetails() {
                 <CardTitle>Book Your Slot</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    required
+                    minLength={10}
+                    maxLength={15}
+                  />
+                </div>
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Select Date</label>
                   <Calendar
