@@ -25,7 +25,7 @@ interface Booking {
 }
 
 export default function MyBookings() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,12 +34,14 @@ export default function MyBookings() {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   useEffect(() => {
+    if (authLoading) return; // Wait for auth to load
+    
     if (!user) {
       navigate('/auth/player');
       return;
     }
     fetchBookings();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const fetchBookings = async () => {
     try {
@@ -93,7 +95,28 @@ export default function MyBookings() {
     }
   };
 
-  if (loading) {
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ 
+          booking_status: 'cancelled'
+        })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast.success('Booking cancelled successfully');
+      fetchBookings();
+    } catch (error: any) {
+      toast.error('Failed to cancel booking');
+      console.error(error);
+    }
+  };
+
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -187,15 +210,26 @@ export default function MyBookings() {
                       </Badge>
                     </div>
 
-                    {booking.payment_status === 'pending' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handlePayNow(booking)}
-                      >
-                        <QrCode className="h-4 w-4 mr-2" />
-                        Pay Now
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      {booking.payment_status === 'pending' && (
+                        <Button
+                          size="sm"
+                          onClick={() => handlePayNow(booking)}
+                        >
+                          <QrCode className="h-4 w-4 mr-2" />
+                          Pay Now
+                        </Button>
+                      )}
+                      {booking.booking_status === 'confirmed' && new Date(booking.booking_date) >= new Date() && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleCancelBooking(booking.id)}
+                        >
+                          Cancel Booking
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
