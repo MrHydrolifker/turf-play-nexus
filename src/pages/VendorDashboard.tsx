@@ -117,7 +117,7 @@ export default function VendorDashboard() {
       const { data: turfsData, error: turfsError } = await supabase
         .from('turfs')
         .select('*')
-        .eq('vendor_id', vendorData.id);
+        .eq('vendor_id', currentVendorId);
 
       if (turfsError) throw turfsError;
       setTurfs(turfsData || []);
