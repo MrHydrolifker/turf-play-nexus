@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2, ArrowLeft, Calendar, Clock, IndianRupee, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
+import QRCodeLib from 'qrcode';
 
 interface Booking {
   id: string;
@@ -65,14 +66,28 @@ export default function MyBookings() {
     }
   };
 
-  const handlePayNow = (booking: Booking) => {
+  const handlePayNow = async (booking: Booking) => {
     setSelectedBooking(booking);
-    // Generate UPI QR code URL
-    const upiUrl = `upi://pay?pa=9479719961-ga25@axl&pn=GameZoneXP&am=${booking.total_amount}&cu=INR&tn=Turf Booking Payment - ${booking.turf.name}`;
-    // Use Google Charts API to generate QR code
-    const qrUrl = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(upiUrl)}&choe=UTF-8`;
-    setQrCodeUrl(qrUrl);
-    setPaymentDialogOpen(true);
+    try {
+      // Generate UPI payment URL
+      const upiUrl = `upi://pay?pa=9479719961-ga25@axl&pn=GameZoneXP&am=${booking.total_amount}&cu=INR&tn=Turf Booking Payment - ${booking.turf.name}`;
+      
+      // Generate QR code as data URL
+      const qrDataUrl = await QRCodeLib.toDataURL(upiUrl, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      });
+      
+      setQrCodeUrl(qrDataUrl);
+      setPaymentDialogOpen(true);
+    } catch (error) {
+      console.error('Failed to generate QR code:', error);
+      toast.error('Failed to generate payment QR code');
+    }
   };
 
   const handleMarkAsPaid = async () => {
