@@ -2,12 +2,18 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Gamepad2, Store, Shield, Star, MapPin, Clock } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Landing() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="absolute top-0 right-0 p-4 z-10">
+        <ThemeToggle />
+      </header>
+
       {/* Hero Section */}
       <section className="relative py-20 px-4" style={{ background: 'var(--gradient-primary)' }}>
         <div className="container mx-auto text-center text-white">

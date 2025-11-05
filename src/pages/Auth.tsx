@@ -2,12 +2,18 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, Store, Gamepad2 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Auth() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gradient-primary)' }}>
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-2">Game Zone XP</h1>

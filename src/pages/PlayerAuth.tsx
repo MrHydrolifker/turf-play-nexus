@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, Gamepad2 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function PlayerAuth() {
   const [loading, setLoading] = useState(false);
@@ -75,6 +76,11 @@ export default function PlayerAuth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gradient-subtle)' }}>
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-3 text-center">
           <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
