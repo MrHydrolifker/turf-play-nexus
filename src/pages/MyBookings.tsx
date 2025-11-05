@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Loader2, ArrowLeft, Calendar, Clock, IndianRupee, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCodeLib from 'qrcode';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface Booking {
   id: string;
@@ -142,14 +143,16 @@ export default function MyBookings() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to home
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to home
+          </Button>
+          <ThemeToggle />
+        </div>
 
         <h1 className="text-3xl font-bold mb-6">My Bookings</h1>
 

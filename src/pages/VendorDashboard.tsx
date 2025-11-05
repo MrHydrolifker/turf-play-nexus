@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import TurfCard from '@/components/TurfCard';
 import { Loader2, ArrowLeft, Plus, Store, Calendar, IndianRupee } from 'lucide-react';
 import { toast } from 'sonner';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface Turf {
   id: string;
@@ -183,10 +184,13 @@ export default function VendorDashboard() {
             </Button>
             <h1 className="text-3xl font-bold">Vendor Dashboard</h1>
           </div>
-          <Button onClick={() => navigate('/vendor/add-turf')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Turf
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button onClick={() => navigate('/vendor/add-turf')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Turf
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
